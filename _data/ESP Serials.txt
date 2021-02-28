@@ -1,0 +1,24 @@
+4   
+    DeviceId: ESP8266-000000A1C50D
+    Temperature topic: sensor/ESP8266-000000A1C50D/temperature
+    Humidity topic: sensor/ESP8266-000000A1C50D/humidity 
+
+5
+    DeviceId: ESP8266-000000A41705
+    Temperature topic: sensor/ESP8266-000000A41705/temperature
+    Humidity topic: sensor/ESP8266-000000A41705/humidity
+
+6
+    DeviceId: ESP8266-000000A41729
+    Temperature topic: sensor/ESP8266-000000A41729/temperature
+    Humidity topic: sensor/ESP8266-000000A41729/humidity
+    
+7
+    DeviceId: ESP8266-000000A417EE
+    Temperature topic: sensor/ESP8266-000000A417EE/temperature
+    Humidity topic: sensor/ESP8266-000000A417EE/humidity 
+
+8
+    DeviceId: ESP8266-000000A417C8
+    Temperature topic: sensor/ESP8266-000000A417C8/temperature
+    Humidity topic: sensor/ESP8266-000000A417C8/humidity   
