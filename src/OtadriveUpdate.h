@@ -75,7 +75,7 @@ int OtadriveUpdateFlash()
 
   Serial.println(url);
   WiFiClient client; 
-  t_httpUpdate_return ret = ESPhttpUpdate.updateSpiffs(client, url, Version);
+  t_httpUpdate_return ret = ESPhttpUpdate.updateFS(client, url, Version);
 
   switch (ret)
   {
