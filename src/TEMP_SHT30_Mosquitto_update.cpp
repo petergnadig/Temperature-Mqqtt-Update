@@ -6,7 +6,7 @@
 
 #define UpdateMinutes 120
 #define ProductKey "e7c917b9-4b86-4f99-8c7a-52449665d3c8"
-#define Version "21.02.28.4"
+#define Version "22.09.06.1"
 
 #include "OtadriveUpdate.h"
 
@@ -73,7 +73,7 @@ void loop() {
     if(sht30.get()==0){
       temp = sht30.cTemp;
       hum = sht30.humidity;
-      if (absf(temp-temp_P)>0.2 || absf(hum-hum_P)>5) {
+      if (absf(temp-temp_P)>0.2 || absf(hum-hum_P)>0.2) {
         Serial.print("MQTT  Temperature in Celsius : ");
         Serial.println(temp);
         Serial.print("MQTT  Relative Humidity : ");
