@@ -6,7 +6,7 @@
 
 #define UpdateMinutes 120
 #define ProductKey "e7c917b9-4b86-4f99-8c7a-52449665d3c8"
-#define Version "22.09.06.1"
+#define Version "22.09.07.5"
 
 #include "OtadriveUpdate.h"
 
