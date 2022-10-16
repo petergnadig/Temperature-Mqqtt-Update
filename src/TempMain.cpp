@@ -3,10 +3,14 @@
 
 #include "EspMQTTClient.h" // https://github.com/plapointe6/EspMQTTClient 
 
+//#include <Wire.h>               // Only needed for Arduino 1.6.5 and earlier
+#include "SSD1306Wire.h"        // legacy: #include "SSD1306.h"
+SSD1306Wire display(0x3c, SDA, SCL, GEOMETRY_64_48); 
+String dspstr;
 
 #define UpdateMinutes 120
 #define ProductKey "e7c917b9-4b86-4f99-8c7a-52449665d3c8"
-#define Version "22.09.07.5"
+#define Version "22.10.16.6"
 
 #include "OtadriveUpdate.h"
 
@@ -47,6 +51,21 @@ void setup() {
  
   Serial.print("DeviceId: ");
   Serial.println(ssid);
+  
+  display.init();
+  display.flipScreenVertically();
+  
+  display.clear();
+  display.setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
+  delay(200);
+
+
+
+
+  display.setFont(ArialMT_Plain_10);
+  dspstr=String(ssid);
+  display.drawString(32, 24, dspstr);
+  display.display();
 
   Serial.print("Temperature topic: ");
   Serial.println(temp_topic);
@@ -64,35 +83,37 @@ void setup() {
 
   temp_P=0;
   hum_P=0;
+
 }
 
 void loop() {
   msqttc.loop();
 
+  if(sht30.get()==0){
+    temp = sht30.cTemp;
+    hum = sht30.humidity;
+  }
+  else
+  {
+      Serial.println("Sensor Reading Error!");
+  }
+ 
   if (msqttc.isConnected()){
-    if(sht30.get()==0){
-      temp = sht30.cTemp;
-      hum = sht30.humidity;
-      if (absf(temp-temp_P)>0.2 || absf(hum-hum_P)>0.2) {
-        Serial.print("MQTT  Temperature in Celsius : ");
-        Serial.println(temp);
-        Serial.print("MQTT  Relative Humidity : ");
-        Serial.println(hum);
-        Serial.println();
-        msqttc.publish(temp_topic, String(temp));
-        msqttc.publish(hum_topic, String(hum));
-        temp_P=temp;
-        hum_P=hum;
-        time_now=millis();
-        Serial.print("-> Time up sec: ");
-        Serial.println(time_now/1000);
+    if (absf(temp-temp_P)>0.2 || absf(hum-hum_P)>0.2) {
+      Serial.print("MQTT  Temperature in Celsius : ");
+      Serial.println(temp);
+      Serial.print("MQTT  Relative Humidity : ");
+      Serial.println(hum);
+      Serial.println();
+      msqttc.publish(temp_topic, String(temp));
+      msqttc.publish(hum_topic, String(hum));
+      temp_P=temp;
+      hum_P=hum;
+      time_now=millis();
+      Serial.print("-> Time up sec: ");
+      Serial.println(time_now/1000);
       }
     }
-    else
-    {
-      Serial.println("Sensor Reading Error!");
-    }
-  }
   else {
     msqttLinkError++;
     if (msqttLinkError==500000) {
@@ -100,6 +121,19 @@ void loop() {
       msqttLinkError=0;
     }  
   }
+
+  display.clear();
+  display.setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
+  display.setFont(ArialMT_Plain_16);
+  dspstr=String(temp)+" C";
+  display.drawString(31, 10, dspstr);
+  dspstr=String(hum)+" %";
+  display.drawString(31, 28, dspstr);
+  dspstr=WiFi.localIP().toString().c_str();
+  display.setFont(ArialMT_Plain_10);
+  display.drawString(31, 42, dspstr);
+  display.display();
+  delay(200);
 
   time_now=millis();
   if ((time_now-time_last_update)>UpdateMinutes*60*1000){
