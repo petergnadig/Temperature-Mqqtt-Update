@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <WEMOS_SHT3X.h>
+#include <ArduinoJson.h>
 
 #include "EspMQTTClient.h" // https://github.com/plapointe6/EspMQTTClient 
 
@@ -10,7 +11,7 @@ String dspstr;
 
 #define UpdateMinutes 120
 #define ProductKey "e7c917b9-4b86-4f99-8c7a-52449665d3c8"
-#define Version "22.10.16.6"
+#define Version "22.12.23.7"
 
 #include "OtadriveUpdate.h"
 
@@ -28,21 +29,26 @@ int ch = snprintf(ssid, 23, "ESP8266-%04X%08X", chip, (uint32_t)chipid);
 
 String temp_topic = String("sensor/") + ssid + String("/temperature");
 String hum_topic = String("sensor/") + ssid + String("/humidity");
+String json_topic = String("sensor/") + ssid + String("/json");
 
 EspMQTTClient msqttc(
   "12otb24e", 
   "Sukoro70",
-  "192.168.9.100",   // MQTT Broker server ip
-  "openhabian",      // Can be omitted if not needed
-  "Sukoro70",        // Can be omitted if not needed
+  "mosquitto.lan",   // MQTT Broker server ip
+  "mqttuser",      // Can be omitted if not needed
+  "pass",        // Can be omitted if not needed
   ssid               // Client name that uniquely identify your device
 );
 
 uint64_t msqttLinkError=0;
 
 unsigned long time_last_update=millis();
+unsigned long time_last_measure=0;
 unsigned long time_now;
 int update_ret=0;
+
+StaticJsonDocument<200> doc;
+char jsonoutput[200];
 
 void setup() {
 
@@ -58,9 +64,6 @@ void setup() {
   display.clear();
   display.setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
   delay(200);
-
-
-
 
   display.setFont(ArialMT_Plain_10);
   dspstr=String(ssid);
@@ -79,10 +82,15 @@ void setup() {
   Serial.print("Updateinterval (min): ");
   Serial.println(UpdateMinutes);
 
-  msqttc.enableDebuggingMessages(true);
+  msqttc.enableDebuggingMessages(false);
 
   temp_P=0;
   hum_P=0;
+
+
+  doc["sensor"] = "TempHum";
+  doc["temp"] = 0.0;
+  doc["hum"] =0.0;
 
 }
 
@@ -99,17 +107,26 @@ void loop() {
   }
  
   if (msqttc.isConnected()){
-    if (absf(temp-temp_P)>0.2 || absf(hum-hum_P)>0.2) {
+    time_now=millis();
+    if (
+        ((absf(temp-temp_P)>0.2 || absf(hum-hum_P)>0.2 ) && time_now-time_last_measure>1000) || 
+        time_now-time_last_measure>5000
+       ) 
+      {
+      Serial.println();
       Serial.print("MQTT  Temperature in Celsius : ");
       Serial.println(temp);
       Serial.print("MQTT  Relative Humidity : ");
       Serial.println(hum);
-      Serial.println();
       msqttc.publish(temp_topic, String(temp));
       msqttc.publish(hum_topic, String(hum));
+      doc["temp"] = temp;
+      doc["hum"] =hum;
+      serializeJson(doc, jsonoutput);
+      msqttc.publish(json_topic, jsonoutput);
       temp_P=temp;
       hum_P=hum;
-      time_now=millis();
+      time_last_measure=time_now;
       Serial.print("-> Time up sec: ");
       Serial.println(time_now/1000);
       }
