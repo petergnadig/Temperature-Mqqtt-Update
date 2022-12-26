@@ -21,8 +21,8 @@ SSD1306Wire display(0x3c, SDA, SCL, GEOMETRY_64_48);
 String dspstr;
 
 #define UpdateMinutes 120
-#define ProductKey "e7c917b9-4b86-4f99-8c7a-52449665d3c8"
-#define Version "22.12.26.8"
+#define ProductKey "a105cefa-8a00-42f7-ad6e-8dbfcb9bb3be"
+#define Version "22.12.27.01"
 #include "OtadriveUpdate.h"
 
 void onConnectionEstablished();
@@ -103,6 +103,7 @@ void setup() {
   doc["temp"] = 0.0;
   doc["hum"] =0.0;
   doc["pres"] = 0.0;
+  doc["ver"]= Version;
 
 }
 
@@ -147,8 +148,7 @@ void loop() {
 
 if (msqttc.isConnected()){
     if (
-        ((absf(temp-temp_P)>0.2 || absf(hum-hum_P)>0.2 || absf(pres-pres_P)>1.0) 
-          && time_now-time_last_measure>1000) || 
+        ((absf(temp-temp_P)>0.2 || absf(hum-hum_P)>0.2 || absf(pres-pres_P)>1.0) && time_now-time_last_measure>1000) || 
           time_now-time_last_measure>5000
       ) 
       {
@@ -209,7 +209,6 @@ if (msqttc.isConnected()){
 }
 
 void onConnectionEstablished() {
-
 }
 
 float absf(float i) {
