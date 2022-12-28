@@ -22,7 +22,7 @@ String dspstr;
 
 #define UpdateMinutes 120
 #define ProductKey "a105cefa-8a00-42f7-ad6e-8dbfcb9bb3be"
-#define Version "22.12.27.01"
+#define Version "22.12.28.01"
 #include "OtadriveUpdate.h"
 
 void onConnectionEstablished();
@@ -33,7 +33,7 @@ char ssid[23];
 
 uint64_t chipid = ESP.getChipId();
 uint16_t chip = (uint16_t)(chipid >> 32);
-int ch = snprintf(ssid, 23, "ESP8266-%04X%08X", chip, (uint32_t)chipid);
+int ch1 = snprintf(ssid, 23, "ESP8266-%04X%08X", chip, (uint32_t)chipid);
 
 EspMQTTClient msqttc(
   "12otb24e", 
@@ -48,11 +48,15 @@ String temp_topic = String("sensor/") + ssid + String("/temperature");
 String hum_topic = String("sensor/") + ssid + String("/humidity");
 String pres_topic = String("sensor/") + ssid + String("/pressure");
 String json_topic = String("sensor/") + ssid + String("/json");
+char char_status_topic[200];
+int ch2= snprintf(char_status_topic, 200, "%s%s%s", "state/" , ssid , "/state");
+String status_topic = char_status_topic;
 
 uint64_t msqttLinkError=0;
 
 unsigned long time_last_update=millis();
 unsigned long time_last_measure=0;
+unsigned long time_last_alive=0;
 unsigned long time_now;
 int update_ret=0;
 
@@ -93,6 +97,7 @@ void setup() {
   Serial.print("Updateinterval (min): ");
   Serial.println(UpdateMinutes);
 
+  // msqttc.enableLastWillMessage(status_topic, "Offline!!! - Lastwill", false);
   msqttc.enableDebuggingMessages(false);
 
   temp_P=0;
@@ -206,9 +211,18 @@ if (msqttc.isConnected()){
     Serial.println(update_ret);
     time_last_update=millis();
   }
+
+  if ((time_now-time_last_alive)>5*60*1000){
+    if (msqttc.isConnected()){
+      msqttc.publish(status_topic, "Alive");
+      time_last_alive=millis();
+    }
+  }
 }
 
 void onConnectionEstablished() {
+  msqttc.publish(status_topic, "Just got Alive");
+  time_last_alive=millis();
 }
 
 float absf(float i) {
