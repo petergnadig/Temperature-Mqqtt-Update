@@ -22,8 +22,9 @@ String dspstr;
 
 #define UpdateMinutes 120
 #define ProductKey "a105cefa-8a00-42f7-ad6e-8dbfcb9bb3be"
-#define Version "23.04.16.01"
+#define Version "23.04.16.02"
 #include "OtadriveUpdate.h"
+// user:peter.gnadig@hotmail.com pass:Sukoro70
 
 #include <ESP8266WiFiMulti.h>
 const char* wssid     = "SML";
