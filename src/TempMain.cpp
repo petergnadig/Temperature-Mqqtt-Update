@@ -22,8 +22,14 @@ String dspstr;
 
 #define UpdateMinutes 120
 #define ProductKey "a105cefa-8a00-42f7-ad6e-8dbfcb9bb3be"
-#define Version "22.12.28.01"
+#define Version "23.04.16.01"
 #include "OtadriveUpdate.h"
+
+#include <ESP8266WiFiMulti.h>
+const char* wssid     = "SML";
+const char* wpassword = "Sukoro70";
+const uint32_t ConnectTimeoutMs = 5000;
+ESP8266WiFiMulti wifiMulti;
 
 void onConnectionEstablished();
 float absf(float i);
@@ -36,11 +42,10 @@ uint16_t chip = (uint16_t)(chipid >> 32);
 int ch1 = snprintf(ssid, 23, "ESP8266-%04X%08X", chip, (uint32_t)chipid);
 
 EspMQTTClient msqttc(
-  "12otb24e", 
-  "Sukoro70",
-  "mosquitto.lan",   // MQTT Broker server ip
-  "mqttuser",      // Can be omitted if not needed
-  "pass",        // Can be omitted if not needed
+  "ot12mqtt.dyndns.org",   // MQTT Broker server ip
+   1883,
+  "sml",          // Can be omitted if not needed
+  "sml1234",        // Can be omitted if not needed
   ssid               // Client name that uniquely identify your device
 );
 
@@ -61,9 +66,10 @@ unsigned long time_now;
 int update_ret=0;
 
 void setup() {
-
   Serial.begin(115200);
+  Serial.setDebugOutput(false);
   Serial.println();
+  delay(1000);
  
   Serial.print("DeviceId: ");
   Serial.println(ssid);
@@ -74,6 +80,26 @@ void setup() {
   display.clear();
   display.setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
   delay(200);
+
+  WiFi.persistent(false);
+  WiFi.mode(WIFI_STA); 
+  WiFi.begin(wssid, wpassword);
+
+  wifiMulti.cleanAPlist();
+  wifiMulti.addAP("iPGXIII","1234567890");
+  wifiMulti.addAP("SML", "Sukoro70");
+  wifiMulti.addAP("2otb24f", "Sukoro70");
+  wifiMulti.addAP("2otb24e", "Sukoro70");
+
+  if (wifiMulti.run(ConnectTimeoutMs) == WL_CONNECTED) {
+    Serial.print("WiFi connected: ");
+    Serial.print(WiFi.SSID());
+    Serial.print(" ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("WiFi not connected!");
+  }
+
 
   display.setFont(ArialMT_Plain_10);
   dspstr=String(ssid);
@@ -113,7 +139,11 @@ void setup() {
 }
 
 void loop() {
-  msqttc.loop();
+
+  if (wifiMulti.run(ConnectTimeoutMs) == WL_CONNECTED) {
+  } else {
+    Serial.println("WiFi not connected!");
+  } msqttc.loop();
   time_now=millis();
 
   retsht30 = sht30.get();
