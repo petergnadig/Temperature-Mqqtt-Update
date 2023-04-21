@@ -1,0 +1,4 @@
+wemos/WEMOS SHT3x@^1.0.0
+bblanchon/ArduinoJson@^6.19.4
+plapointe6/EspMQTTClient@^1.11.1
+thingpulse/ESP8266 and ESP32 OLED driver for SSD1306 displays@^4.3.0
