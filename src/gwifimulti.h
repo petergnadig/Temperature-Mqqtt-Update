@@ -4,7 +4,7 @@ struct wfcr {
   char* ssid;
   char* pass;
 }
-const wfcr[4] = {{"iPGXIII","1234567890"},{"SML","Sukoro70" },{"12otb24f","Sukoro70" },{"12otb24e","Sukoro70"}};
+const wfcr[4] = {{"iPGXIII","1234567890"},{"12otb24f","Sukoro70" },{"12otb24e","Sukoro70"},{"SML","Sukoro70" }};
 const int wfstno = 4;
 unsigned long time_last_wifi=millis();
 void connectwifi();

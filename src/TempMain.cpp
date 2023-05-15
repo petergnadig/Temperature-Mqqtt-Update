@@ -102,7 +102,7 @@ void setup() {
   Serial.print("Updateinterval (min): ");
   Serial.println(UpdateMinutes);
 
-  // msqttc.enableLastWillMessage(status_topic, "Offline!!! - Lastwill", false);
+  msqttc.enableLastWillMessage(char_status_topic, "Offline!!! - Lastwill", false);
   msqttc.enableDebuggingMessages(false);
 
   temp_P=0;
@@ -120,6 +120,7 @@ void setup() {
 void loop() {
 
   checkwifi();
+  msqttc.loop();
 
   retsht30 = sht30.get();
   if(retsht30==0)
@@ -129,8 +130,8 @@ void loop() {
   }
   else
   {
-    Serial.print("Sensor Reading Error :");
-    Serial.println(retsht30);
+  //  Serial.print("Sensor Reading Error :");
+  //  Serial.println(retsht30);
   }
  
   retHP303B = HP303BPressureSensor.measurePressureOnce(pressure, oversampling);
@@ -152,7 +153,7 @@ void loop() {
   else
   {
     //Something went wrong. Look at the library code for more information about return codes
-    Serial.print("FAIL to reade pressure! ret = ");
+    Serial.print("FAIL to read pressure! ret = ");
     Serial.println(retHP303B); 
   }
 
