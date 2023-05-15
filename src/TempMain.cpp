@@ -22,15 +22,11 @@ String dspstr;
 
 #define UpdateMinutes 120
 #define ProductKey "a105cefa-8a00-42f7-ad6e-8dbfcb9bb3be"
-#define Version "23.04.16.02"
+#define Version "23.05.17.00"
 #include "OtadriveUpdate.h"
 // user:peter.gnadig@hotmail.com pass:Sukoro70
 
-#include <ESP8266WiFiMulti.h>
-const char* wssid     = "SML";
-const char* wpassword = "Sukoro70";
-const uint32_t ConnectTimeoutMs = 5000;
-ESP8266WiFiMulti wifiMulti;
+#include "gwifimulti.h"
 
 void onConnectionEstablished();
 float absf(float i);
@@ -82,30 +78,12 @@ void setup() {
   display.setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
   delay(200);
 
-  WiFi.persistent(false);
-  WiFi.mode(WIFI_STA); 
-  WiFi.begin(wssid, wpassword);
-
-  wifiMulti.cleanAPlist();
-  wifiMulti.addAP("iPGXIII","1234567890");
-  wifiMulti.addAP("SML", "Sukoro70");
-  wifiMulti.addAP("2otb24f", "Sukoro70");
-  wifiMulti.addAP("2otb24e", "Sukoro70");
-
-  if (wifiMulti.run(ConnectTimeoutMs) == WL_CONNECTED) {
-    Serial.print("WiFi connected: ");
-    Serial.print(WiFi.SSID());
-    Serial.print(" ");
-    Serial.println(WiFi.localIP());
-  } else {
-    Serial.println("WiFi not connected!");
-  }
-
-
   display.setFont(ArialMT_Plain_10);
   dspstr=String(ssid);
   display.drawString(32, 24, dspstr);
   display.display();
+
+  connectwifi();
 
   HP303BPressureSensor.begin();
 
@@ -141,11 +119,7 @@ void setup() {
 
 void loop() {
 
-  if (wifiMulti.run(ConnectTimeoutMs) == WL_CONNECTED) {
-  } else {
-    Serial.println("WiFi not connected!");
-  } msqttc.loop();
-  time_now=millis();
+  checkwifi();
 
   retsht30 = sht30.get();
   if(retsht30==0)
