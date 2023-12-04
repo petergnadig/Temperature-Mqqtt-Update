@@ -5,6 +5,8 @@ int16_t retsht30;
 
 #include <ArduinoJson.h>
 StaticJsonDocument<200> doc;
+StaticJsonDocument<200> status;
+
 char jsonoutput[200];
 
 #include <LOLIN_HP303B.h>  // https://github.com/wemos/LOLIN_HP303B_Library 
@@ -22,7 +24,7 @@ String dspstr;
 
 #define UpdateMinutes 120
 #define ProductKey "a105cefa-8a00-42f7-ad6e-8dbfcb9bb3be"
-#define Version "23.05.17.00"
+#define Version "23.12.03.00"
 #include "OtadriveUpdate.h"
 // user:peter.gnadig@hotmail.com pass:Sukoro70
 
@@ -53,6 +55,7 @@ String json_topic = String("sensor/") + ssid + String("/json");
 char char_status_topic[200];
 int ch2= snprintf(char_status_topic, 200, "%s%s%s", "state/" , ssid , "/state");
 String status_topic = char_status_topic;
+String status_payload;
 
 uint64_t msqttLinkError=0;
 
@@ -115,6 +118,9 @@ void setup() {
   doc["pres"] = 0.0;
   doc["ver"]= Version;
 
+  status["State"] = "JustAlive";
+  status["Version"] = Version;
+
 }
 
 void loop() {
@@ -133,7 +139,8 @@ void loop() {
   //  Serial.print("Sensor Reading Error :");
   //  Serial.println(retsht30);
   }
- 
+  
+
   retHP303B = HP303BPressureSensor.measurePressureOnce(pressure, oversampling);
   if (retHP303B == 0)
   {
@@ -159,7 +166,7 @@ void loop() {
 
 if (msqttc.isConnected()){
     if (
-        ((absf(temp-temp_P)>0.2 || absf(hum-hum_P)>0.2 || absf(pres-pres_P)>1.0) && time_now-time_last_measure>1000) || 
+        ((absf(temp-temp_P)>0.9 || absf(hum-hum_P)>0.9 || absf(pres-pres_P)>5.0) && time_now-time_last_measure>1000) || 
           time_now-time_last_measure>5000
       ) 
       {
@@ -220,14 +227,18 @@ if (msqttc.isConnected()){
 
   if ((time_now-time_last_alive)>5*60*1000){
     if (msqttc.isConnected()){
-      msqttc.publish(status_topic, "Alive");
+      status["State"] = "Alive";
+      serializeJson(status, jsonoutput);
+      msqttc.publish(status_topic, jsonoutput);
       time_last_alive=millis();
     }
   }
 }
 
 void onConnectionEstablished() {
-  msqttc.publish(status_topic, "Just got Alive");
+      status["State"] = "JustGotAlive";
+      serializeJson(status, jsonoutput);
+      msqttc.publish(status_topic, jsonoutput);
   time_last_alive=millis();
 }
 

@@ -9,9 +9,11 @@ const int wfstno = 4;
 unsigned long time_last_wifi=millis();
 void connectwifi();
 void checkwifi();
+int connectfailed =0;
 
 void connectwifi() {
   int wfcount=0;
+  connectfailed++;
   while (wfcount<wfstno and WiFi.status() != WL_CONNECTED) {
     WiFi.begin(wfcr[wfcount].ssid, wfcr[wfcount].pass);             // Connect to the network
     Serial.print("Connecting to ");
@@ -30,6 +32,7 @@ void connectwifi() {
     Serial.print("IP address:\t");
     Serial.println(WiFi.localIP());   
     time_last_wifi=millis();
+    connectfailed =0;
   }else{
     Serial.println('\n');
     Serial.println("NO WIFI AVAILABLE !!!");  
@@ -44,6 +47,9 @@ void checkwifi() {
     Serial.println();
     Serial.println("No wifi, try to connect");
     connectwifi();
+    if(connectfailed>20){
+      ESP.restart();
+    }
    } else {
     Serial.println();
     Serial.println("Wifi OK");
