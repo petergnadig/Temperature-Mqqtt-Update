@@ -24,7 +24,7 @@ String dspstr;
 
 #define UpdateMinutes 120
 #define ProductKey "a105cefa-8a00-42f7-ad6e-8dbfcb9bb3be"
-#define Version "23.12.03.00"
+#define Version "23.12.04.00"
 #include "OtadriveUpdate.h"
 // user:peter.gnadig@hotmail.com pass:Sukoro70
 
@@ -62,6 +62,7 @@ uint64_t msqttLinkError=0;
 unsigned long time_last_update=millis();
 unsigned long time_last_measure=0;
 unsigned long time_last_alive=0;
+unsigned long time_last_display=0;
 unsigned long time_now;
 int update_ret=0;
 
@@ -139,7 +140,6 @@ void loop() {
   //  Serial.print("Sensor Reading Error :");
   //  Serial.println(retsht30);
   }
-  
 
   retHP303B = HP303BPressureSensor.measurePressureOnce(pressure, oversampling);
   if (retHP303B == 0)
@@ -171,12 +171,9 @@ if (msqttc.isConnected()){
       ) 
       {
       Serial.println();
-      Serial.print("MQTT  Temperature in Celsius : ");
-      Serial.println(temp);
-      Serial.print("MQTT  Relative Humidity : ");
-      Serial.println(hum);
-      Serial.print("MQTT  Pressure : ");
-      Serial.println(pres);
+      Serial.printf("MQTT Temperature in Celsius : %.2f \n",temp);
+      Serial.printf("MQTT Relative Humidity : %.2f \n",hum);
+      Serial.printf("MQTT Pressure : %.2f \n",pres);
       msqttc.publish(temp_topic, String(temp));
       msqttc.publish(hum_topic, String(hum));
       msqttc.publish(pres_topic, String(pres));
@@ -201,21 +198,24 @@ if (msqttc.isConnected()){
     }  
   }
 
-  display.clear();
-  display.setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
-  display.setFont(ArialMT_Plain_10);
-  dspstr=String(temp)+" C";
-  display.drawString(31, 10, dspstr);
-  dspstr=String(hum)+" %";
-  display.drawString(31, 20, dspstr);
-  dspstr=String(pres)+" Pa";
-  display.drawString(31, 30, dspstr);
-  dspstr=WiFi.localIP().toString().c_str();
-  display.drawString(31, 42, dspstr);
-  display.display();
-  delay(200);
-
   time_now=millis();
+
+  if ((time_now-time_last_display)>5000){
+    display.clear();
+    display.setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
+    display.setFont(ArialMT_Plain_10);
+    dspstr=String(temp)+" C" ;
+    display.drawString(31, 10, dspstr);
+    dspstr=String(hum)+" %";
+    display.drawString(31, 20, dspstr);
+    dspstr=String(pres)+" Pa";
+    display.drawString(31, 30, dspstr);
+    dspstr=WiFi.localIP().toString().c_str();
+    display.drawString(31, 42, dspstr);
+    display.display();
+    time_last_display=millis();
+  }
+
   if ((time_now-time_last_update)>UpdateMinutes*60*1000){
     Serial.print("----Update try----");
     Serial.println(time_now);
