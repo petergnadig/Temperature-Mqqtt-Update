@@ -24,7 +24,7 @@ String dspstr;
 
 #define UpdateMinutes 120
 #define ProductKey "a105cefa-8a00-42f7-ad6e-8dbfcb9bb3be"
-#define Version "23.12.04.00"
+#define Version "24.01.26.00"
 #include "OtadriveUpdate.h"
 // user:peter.gnadig@hotmail.com pass:Sukoro70
 
@@ -121,6 +121,7 @@ void setup() {
 
   status["State"] = "JustAlive";
   status["Version"] = Version;
+  status["IP"] = WiFi.localIP().toString();
 
 }
 
@@ -228,6 +229,7 @@ if (msqttc.isConnected()){
   if ((time_now-time_last_alive)>5*60*1000){
     if (msqttc.isConnected()){
       status["State"] = "Alive";
+      status["IP"] = WiFi.localIP().toString();
       serializeJson(status, jsonoutput);
       msqttc.publish(status_topic, jsonoutput);
       time_last_alive=millis();
