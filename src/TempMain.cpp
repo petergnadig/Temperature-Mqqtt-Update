@@ -1,4 +1,9 @@
+#ifdef __INTELLISENSE__
+#pragma diag_suppress 153
+#endif
+
 #include <Arduino.h>
+
 #include <WEMOS_SHT3X.h>
 SHT3X sht30(0x45);
 int16_t retsht30;
@@ -24,7 +29,7 @@ String dspstr;
 
 #define UpdateMinutes 120
 #define ProductKey "a105cefa-8a00-42f7-ad6e-8dbfcb9bb3be"
-#define Version "23.12.04.00"
+#define Version "24.11.03.00"
 #include "OtadriveUpdate.h"
 // user:peter.gnadig@hotmail.com pass:Sukoro70
 
@@ -118,10 +123,11 @@ void setup() {
   doc["hum"] =0.0;
   doc["pres"] = 0.0;
   doc["ver"]= Version;
+  doc["IP"]=WiFi.localIP();
 
   status["State"] = "JustAlive";
   status["Version"] = Version;
-
+  status["IP"]=WiFi.localIP();
 }
 
 void loop() {
