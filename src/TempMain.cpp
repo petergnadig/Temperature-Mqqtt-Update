@@ -234,6 +234,7 @@ if (msqttc.isConnected()){
   if ((time_now-time_last_alive)>5*60*1000){
     if (msqttc.isConnected()){
       status["State"] = "Alive";
+      status["IP"] = WiFi.localIP().toString();
       serializeJson(status, jsonoutput);
       msqttc.publish(status_topic, jsonoutput);
       time_last_alive=millis();
