@@ -8,12 +8,22 @@ struct wfcr {
   char* ssid;
   char* pass;
 }
-const wfcr[5] = {{"iPGXIII","1234567890"},{"12otb24f","Sukoro70" },{"12otb24e","Sukoro70"},{"SML","Sukoro70" },{"INDOTEK_GUEST","iT6uK6qT" }};
+const wfcr[5] = {{"iPGXIII","1234567890"},{"ot12b","Sukoro70" },{"12otb24f","Sukoro70"},{"SML","Sukoro70" },{"INDOTEK_GUEST","iT6uK6qT" }};
 const int wfstno = 5;
 unsigned long time_last_wifi=millis();
 void connectwifi();
 void checkwifi();
 int connectfailed =0;
+
+
+/*
+0 : WL_IDLE_STATUS when Wi-Fi is in process of changing between statuses
+1 : WL_NO_SSID_AVAILin case configured SSID cannot be reached
+3 : WL_CONNECTED after successful connection is established
+4 : WL_CONNECT_FAILED if connection failed
+6 : WL_CONNECT_WRONG_PASSWORD if password is incorrect
+7 : WL_DISCONNECTED if module is not configured in station mode
+*/
 
 void connectwifi() {
   int wfcount=0;
@@ -29,6 +39,24 @@ void connectwifi() {
       Serial.print(++i); Serial.print(' ');
     }
     Serial.println();
+    switch (WiFi.status())
+    {
+    case WL_NO_SSID_AVAIL:
+      Serial.println("Configured SSID cannot be reached");
+      break;
+    case WL_CONNECTED:
+      Serial.println("Successful connection is established");
+      break;
+    case WL_CONNECT_FAILED:
+      Serial.println("Connection failed");
+      break;
+    case 6: //WL_CONNECT_WRONG_PASSWORD:
+      Serial.println("Password is incorrect");
+    case WL_DISCONNECTED:
+      Serial.println("Module is not configured in station mode");
+    default:
+      break;
+    }
     wfcount++;
   }
   if (WiFi.status() == WL_CONNECTED) {
@@ -41,6 +69,7 @@ void connectwifi() {
   }else{
     Serial.println('\n');
     Serial.println("NO WIFI AVAILABLE !!!");  
+    Serial.println(WiFi.status()); 
   }
 }
 
