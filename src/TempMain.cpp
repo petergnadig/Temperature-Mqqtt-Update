@@ -29,7 +29,7 @@ String dspstr;
 
 #define UpdateMinutes 120
 #define ProductKey "a105cefa-8a00-42f7-ad6e-8dbfcb9bb3be"
-#define Version "24.11.04.03"
+#define Version "25.02.16.01"
 #include "OtadriveUpdate.h"
 // user:peter.gnadig@hotmail.com pass:Sukoro70
 
@@ -155,8 +155,8 @@ void loop() {
   else
   {
     //Something went wrong. Look at the library code for more information about return codes
-    Serial.print("FAIL to reade pressure! ret = ");
-    Serial.println(retHP303B); 
+    //Serial.print("FAIL to reade pressure! ret = ");
+    //Serial.println(retHP303B); 
   }
   retHP303B = HP303BPressureSensor.measureTempOnce(temperature, oversampling);
   if (retHP303B == 0)
@@ -166,8 +166,8 @@ void loop() {
   else
   {
     //Something went wrong. Look at the library code for more information about return codes
-    Serial.print("FAIL to read pressure! ret = ");
-    Serial.println(retHP303B); 
+    //Serial.print("FAIL to read pressure! ret = ");
+    //Serial.println(retHP303B); 
   }
 
 if (msqttc.isConnected()){

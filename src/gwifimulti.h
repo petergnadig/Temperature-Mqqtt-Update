@@ -8,7 +8,7 @@ struct wfcr {
   char* ssid;
   char* pass;
 }
-const wfcr[5] = {{"iPGXIII","1234567890"},{"ot12b","Sukoro70" },{"12otb24f","Sukoro70"},{"SML","Sukoro70" },{"INDOTEK_GUEST","iT6uK6qT" }};
+const wfcr[5] = {{"iPGXIII","1234567890"},{"ot12b","Sukoro70" },{"12otb24e","Sukoro70"},{"SML","Sukoro70" },{"INDOTEK_GUEST","iT6uK6qT" }};
 const int wfstno = 5;
 unsigned long time_last_wifi=millis();
 void connectwifi();
